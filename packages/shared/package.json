@@ -1,0 +1,14 @@
+{
+  "name": "@mini-compete/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for Mini Compete",
+  "main": "./src/types/index.ts",
+  "types": "./src/types/index.ts",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

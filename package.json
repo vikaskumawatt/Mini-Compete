@@ -1,0 +1,36 @@
+{
+  "name": "mini-compete",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:migrate": "yarn workspace @mini-compete/backend prisma migrate dev",
+    "db:seed": "yarn workspace @mini-compete/backend prisma db seed",
+    "db:studio": "yarn workspace @mini-compete/backend prisma studio",
+    "db:reset": "yarn workspace @mini-compete/backend prisma migrate reset",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.11.2",
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "packageManager": "yarn@1.22.19"
+}
