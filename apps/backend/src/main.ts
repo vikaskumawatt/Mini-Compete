@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
+import { DocumentBuilder } from '@nestjs/swagger/dist/document-builder';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -40,11 +41,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = configService.get('BACKEND_PORT') || 3001;
-  await app.listen(port);
-
-  logger.log(`🚀 Backend server running on http://localhost:${port}`);
-  logger.log(`📚 API Documentation available at http://localhost:${port}/api/docs`);
+  const port = process.env.PORT || configService.get('BACKEND_PORT') || 3001;
+  await app.listen(port, '0.0.0.0');
+  logger.log(`🚀 Backend server running on http://0.0.0.0:${port}`);
+  logger.log(`📚 API Documentation available at http://0.0.0.0:${port}/api/docs`);
 }
 
 bootstrap();
