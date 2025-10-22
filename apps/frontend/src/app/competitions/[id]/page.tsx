@@ -19,6 +19,7 @@ export default function CompetitionDetailPage() {
 
   useEffect(() => {
     loadCompetition();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const loadCompetition = async () => {

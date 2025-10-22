@@ -19,6 +19,7 @@ export default function CompetitionCard({ competition }: CompetitionCardProps) {
     const deadline = new Date(competition.regDeadline);
     setIsDeadlinePassed(new Date() > deadline);
     setFormattedDeadline(formatDate(competition.regDeadline));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [competition.regDeadline]);
 
   const isFull = competition.seatsLeft <= 0;

@@ -10,7 +10,7 @@ import Header from '@/components/Header';
 export default function CreateCompetitionPage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -27,13 +27,13 @@ export default function CreateCompetitionPage() {
   // Check auth on client side only
   useEffect(() => {
     const { user } = getAuth();
-    setUser(user);
     
     if (!user || !isOrganizer()) {
       router.push('/auth/login?role=organizer');
       return;
     }
     
+    setIsAuthorized(true);
     setAuthChecked(true);
   }, [router]);
 
@@ -45,6 +45,20 @@ export default function CreateCompetitionPage() {
         <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="card p-8 text-center">
             <div className="text-gray-600">Loading...</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // If not authorized after check, don't render the form
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <Header />
+        <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="card p-8 text-center">
+            <div className="text-gray-600">Redirecting to login...</div>
           </div>
         </main>
       </div>
@@ -77,6 +91,7 @@ export default function CreateCompetitionPage() {
       await competitions.create(payload);
       setSuccess('Competition created successfully! Redirecting to your dashboard...');
       setTimeout(() => router.push('/dashboard'), 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create competition.');
     } finally {
