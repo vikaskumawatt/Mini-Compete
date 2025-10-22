@@ -21,13 +21,13 @@ mini-compete/
 ├── apps/
 │   ├── backend/          # NestJS API server
 │   │   ├── src/
-│   │   │   ├── auth/     # Authentication module
-│   │   │   ├── competitions/  # Competition management
-│   │   │   ├── registrations/ # Registration logic
-│   │   │   ├── queue/    # Job processors
-│   │   │   ├── cron/     # Scheduled tasks
-│   │   │   └── prisma/   # Database client
-│   │   └── prisma/       # Schema & migrations
+│   │       ├── auth/     # Authentication module
+│   │       ├── competitions/  # Competition management
+│   │       ├── registrations/ # Registration logic
+│   │       ├── queue/    # Job processors
+│   │       ├── cron/     # Scheduled tasks
+│   │       └── prisma/   # Database client, Schema & migrations
+│   │  
 │   └── frontend/         # Next.js application
 │       └── src/
 │           ├── app/      # App router pages
