@@ -117,8 +117,8 @@ cp apps/backend/.env.example apps/backend/.env
 
 ```bash
 cd apps/backend
-yarn prisma migrate dev
-yarn prisma db seed
+yarn prisma:migrate
+yarn prisma:seed
 cd ../..
 ```
 
