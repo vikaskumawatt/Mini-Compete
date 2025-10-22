@@ -1,20 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { competitions } from '@/lib/api';
 import { getAuth, isOrganizer } from '@/lib/auth';
-import Header from '@/components/Header'; // Assuming Header exists from the list page
+import Header from '@/components/Header';
 
 export default function CreateCompetitionPage() {
   const router = useRouter();
-  const { user } = getAuth();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    tags: '' as string, // Comma-separated input
+    tags: '' as string,
     capacity: '',
     regDeadline: '',
     startDate: '',
@@ -23,9 +24,31 @@ export default function CreateCompetitionPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  if (!user || !isOrganizer()) {
-    router.push('/auth/login?role=organizer');
-    return null;
+  // Check auth on client side only
+  useEffect(() => {
+    const { user } = getAuth();
+    setUser(user);
+    
+    if (!user || !isOrganizer()) {
+      router.push('/auth/login?role=organizer');
+      return;
+    }
+    
+    setAuthChecked(true);
+  }, [router]);
+
+  // Don't render until auth check is complete
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <Header />
+        <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="card p-8 text-center">
+            <div className="text-gray-600">Loading...</div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
