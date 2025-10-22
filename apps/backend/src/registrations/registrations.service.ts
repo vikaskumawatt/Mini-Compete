@@ -1,10 +1,15 @@
-import { Injectable, BadRequestException, ConflictException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { Prisma, RegistrationStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import Redis from 'ioredis';
-import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Injectable()
 export class RegistrationsService {
@@ -84,7 +89,7 @@ export class RegistrationsService {
             data: {
               userId,
               competitionId,
-              status: RegistrationStatus.PENDING,
+              status: 'PENDING', // Use string literal instead of enum
               idempotencyKey,
             },
             include: {
@@ -266,7 +271,7 @@ export class RegistrationsService {
     await this.prisma.registration.update({
       where: { id: registrationId },
       data: {
-        status: RegistrationStatus.CONFIRMED,
+        status: 'CONFIRMED', // Use string literal instead of enum
       },
     });
   }

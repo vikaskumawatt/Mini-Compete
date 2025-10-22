@@ -38,10 +38,10 @@ Participant: participant1@minicompete.com / password123
 
 ## 🌐 URLs
 
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| Backend | http://localhost:3001 |
+| Service  | URL                            |
+| -------- | ------------------------------ |
+| Frontend | http://localhost:3000          |
+| Backend  | http://localhost:3001          |
 | API Docs | http://localhost:3001/api/docs |
 
 ## 📊 Project Stats
@@ -59,18 +59,18 @@ Participant: participant1@minicompete.com / password123
 ✅ Concurrency control (4 layers)  
 ✅ Background jobs (BullMQ)  
 ✅ Cron tasks  
-✅ Docker deployment  
+✅ Docker deployment
 
 ## 📚 Documentation Index
 
-| Document | Purpose |
-|----------|---------|
-| README.md | Main docs |
-| QUICKSTART.md | 5-min setup |
-| ARCHITECTURE.md | Design details |
-| SETUP_COMPLETE_GUIDE.md | Detailed setup |
-| CONTRIBUTING.md | How to contribute |
-| DELIVERY_SUMMARY.md | Project status |
+| Document                | Purpose           |
+| ----------------------- | ----------------- |
+| README.md               | Main docs         |
+| QUICKSTART.md           | 5-min setup       |
+| ARCHITECTURE.md         | Design details    |
+| SETUP_COMPLETE_GUIDE.md | Detailed setup    |
+| CONTRIBUTING.md         | How to contribute |
+| DELIVERY_SUMMARY.md     | Project status    |
 
 ## 🐛 Quick Troubleshooting
 
@@ -94,18 +94,21 @@ make docker-down && make docker-up
 ## 🔧 Common Tasks
 
 ### Create Migration
+
 ```bash
 cd apps/backend
 yarn prisma migrate dev --name my_migration
 ```
 
 ### Run Tests
+
 ```bash
 yarn test
 yarn test:e2e
 ```
 
 ### Build for Production
+
 ```bash
 yarn build
 docker-compose build
@@ -129,7 +132,7 @@ Body: { title, description, capacity, regDeadline }
 
 # Register (Participant)
 POST /api/competitions/:id/register
-Headers: { 
+Headers: {
   Authorization: Bearer <token>,
   Idempotency-Key: <unique-key>
 }

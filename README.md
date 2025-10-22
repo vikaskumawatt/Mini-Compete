@@ -5,6 +5,7 @@ A production-ready monorepo application for managing competitions and participan
 ## 🏗️ Architecture Overview
 
 ### Tech Stack
+
 - **Monorepo**: Turborepo for optimized builds and caching
 - **Backend**: NestJS (TypeScript) + Prisma ORM + PostgreSQL
 - **Frontend**: Next.js 14 (App Router) + React + Tailwind CSS
@@ -14,6 +15,7 @@ A production-ready monorepo application for managing competitions and participan
 - **Containerization**: Docker + Docker Compose
 
 ### Project Structure
+
 ```
 mini-compete/
 ├── apps/
@@ -38,6 +40,7 @@ mini-compete/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - Yarn 1.22+
 - Docker & Docker Compose (for containerized setup)
@@ -47,12 +50,14 @@ mini-compete/
 ### Option 1: Docker Compose (Recommended)
 
 1. **Clone the repository**
+
 ```bash
 git clone <repository-url>
 cd mini-compete
 ```
 
 2. **Create environment files**
+
 ```bash
 # Root .env
 cp .env.example .env
@@ -67,17 +72,20 @@ cp apps/frontend/.env.example apps/frontend/.env
 3. **Update environment variables** in `.env` files (especially `JWT_SECRET`)
 
 4. **Start all services**
+
 ```bash
 docker-compose up -d
 ```
 
 5. **Run database migrations**
+
 ```bash
 docker-compose exec backend yarn prisma migrate deploy
 docker-compose exec backend yarn prisma db seed
 ```
 
 6. **Access the application**
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 - API Documentation: http://localhost:3001/api/docs
@@ -85,11 +93,13 @@ docker-compose exec backend yarn prisma db seed
 ### Option 2: Local Development
 
 1. **Install dependencies**
+
 ```bash
 yarn install
 ```
 
 2. **Start PostgreSQL and Redis**
+
 ```bash
 # Using Docker
 docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=mini_compete postgres:15
@@ -97,12 +107,14 @@ docker run -d -p 6379:6379 redis:7-alpine
 ```
 
 3. **Set up environment variables**
+
 ```bash
 cp .env.example .env
 cp apps/backend/.env.example apps/backend/.env
 ```
 
 4. **Run database migrations and seed**
+
 ```bash
 cd apps/backend
 yarn prisma migrate dev
@@ -111,6 +123,7 @@ cd ../..
 ```
 
 5. **Start development servers**
+
 ```bash
 # Terminal 1: Backend API
 yarn workspace @mini-compete/backend dev
@@ -127,10 +140,12 @@ yarn workspace @mini-compete/frontend dev
 After seeding the database, use these credentials:
 
 ### Organizers
+
 - Email: `organizer1@minicompete.com` / Password: `password123`
 - Email: `organizer2@minicompete.com` / Password: `password123`
 
 ### Participants
+
 - Email: `participant1@minicompete.com` / Password: `password123`
 - Email: `participant2@minicompete.com` / Password: `password123`
 - Email: `participant3@minicompete.com` / Password: `password123`
@@ -138,11 +153,13 @@ After seeding the database, use these credentials:
 ## 🔑 Key Features
 
 ### 1. Authentication & Authorization
+
 - JWT-based authentication
 - Role-based access control (Participant/Organizer)
 - Protected routes and API endpoints
 
 ### 2. Competition Management
+
 - Organizers can create competitions with:
   - Title, description, tags
   - Capacity and registration deadline
@@ -151,8 +168,9 @@ After seeding the database, use these credentials:
 - Real-time seat availability tracking
 
 ### 3. Registration System
+
 - **Idempotency**: Prevents duplicate registrations using `Idempotency-Key` header
-- **Concurrency Control**: 
+- **Concurrency Control**:
   - Database transactions with SERIALIZABLE isolation
   - Row-level locking (FOR UPDATE)
   - Optimistic locking with version field
@@ -161,12 +179,14 @@ After seeding the database, use these credentials:
 - **Deadline Validation**: Enforces registration deadlines
 
 ### 4. Background Job Processing
+
 - **Registration Confirmation**: Async email simulation via MailBox table
 - **Retry Logic**: Exponential backoff (3 attempts)
 - **Dead Letter Queue**: Failed jobs stored in database
 - **Job Persistence**: Redis stores jobs across restarts
 
 ### 5. Scheduled Tasks (Cron)
+
 - **Reminder Job**: Sends notifications 24h before competition start
 - **Cleanup Job**: Purges expired idempotency logs and old failed jobs
 - Configurable schedules via environment variables
@@ -178,6 +198,7 @@ After seeding the database, use these credentials:
 **Problem**: Prevent duplicate registrations from network retries or multiple clicks
 
 **Solution**: Three-layer idempotency system
+
 1. **Redis Cache** (fast lookup, 24h TTL)
 2. **Database Log** (persistent storage)
 3. **Unique Constraint** (userId + competitionId)
@@ -196,6 +217,7 @@ headers: {
 **Problem**: Multiple users registering simultaneously for limited seats
 
 **Solution**: Multi-layer protection
+
 1. **Distributed Lock** (Redis): Serializes competition access
 2. **Database Transaction** (SERIALIZABLE): Prevents race conditions
 3. **Row-Level Lock** (FOR UPDATE): Locks competition record
@@ -207,7 +229,7 @@ BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 SELECT * FROM competitions WHERE id = ? FOR UPDATE;
 -- Check capacity and deadline
 INSERT INTO registrations ...;
-UPDATE competitions SET seatsLeft = seatsLeft - 1, version = version + 1 
+UPDATE competitions SET seatsLeft = seatsLeft - 1, version = version + 1
 WHERE id = ? AND version = ?;
 COMMIT;
 ```
@@ -215,10 +237,12 @@ COMMIT;
 ### Queue Architecture
 
 **Queues**:
+
 - `registration`: Confirmation emails
 - `reminder`: Pre-event notifications
 
 **Processing**:
+
 - Worker polls Redis queues
 - Exponential backoff retry (2s, 4s, 8s)
 - Failed jobs → DLQ after 3 attempts
@@ -227,12 +251,14 @@ COMMIT;
 ## 📡 API Endpoints
 
 ### Authentication
+
 ```bash
 POST /api/auth/signup       # Register new user
 POST /api/auth/login        # Login
 ```
 
 ### Competitions
+
 ```bash
 GET    /api/competitions              # List all
 GET    /api/competitions/:id          # Get details
@@ -243,6 +269,7 @@ GET    /api/competitions/:id/registrations # Get registrations
 ```
 
 ### Registrations
+
 ```bash
 GET    /api/competitions/registrations/my  # User's registrations
 ```
@@ -250,6 +277,7 @@ GET    /api/competitions/registrations/my  # User's registrations
 ### Example cURL Commands
 
 **Signup**:
+
 ```bash
 curl -X POST http://localhost:3001/api/auth/signup \
   -H "Content-Type: application/json" \
@@ -262,6 +290,7 @@ curl -X POST http://localhost:3001/api/auth/signup \
 ```
 
 **Create Competition**:
+
 ```bash
 curl -X POST http://localhost:3001/api/competitions \
   -H "Content-Type: application/json" \
@@ -277,6 +306,7 @@ curl -X POST http://localhost:3001/api/competitions \
 ```
 
 **Register for Competition** (with idempotency):
+
 ```bash
 curl -X POST http://localhost:3001/api/competitions/COMPETITION_ID/register \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
@@ -314,6 +344,7 @@ artillery run artillery.yml
 ## 📊 Database Schema
 
 Key models:
+
 - **User**: id, email, name, password, role
 - **Competition**: id, title, description, capacity, seatsLeft, regDeadline, version
 - **Registration**: id, userId, competitionId, status, idempotencyKey (unique)
@@ -326,6 +357,7 @@ Key models:
 ### Environment Variables
 
 **Backend** (`apps/backend/.env`):
+
 ```env
 DATABASE_URL="postgresql://user:pass@host:5432/db"
 REDIS_HOST=localhost
@@ -337,6 +369,7 @@ CRON_REMINDER_SCHEDULE="0 0 * * *"
 ```
 
 **Frontend** (`apps/frontend/.env`):
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
@@ -400,6 +433,7 @@ yarn format
 ## 📈 Monitoring & Debugging
 
 ### View Worker Jobs
+
 ```bash
 # Redis CLI
 docker-compose exec redis redis-cli
@@ -412,12 +446,14 @@ HGETALL bull:registration:id
 ```
 
 ### Check Failed Jobs
+
 ```sql
 -- In PostgreSQL
 SELECT * FROM failed_jobs ORDER BY failed_at DESC;
 ```
 
 ### View Mailbox (Simulated Emails)
+
 ```sql
 SELECT * FROM mailbox ORDER BY sent_at DESC;
 ```
@@ -425,6 +461,7 @@ SELECT * FROM mailbox ORDER BY sent_at DESC;
 ## 🚨 Troubleshooting
 
 ### Database Connection Issues
+
 ```bash
 # Check if PostgreSQL is running
 docker-compose ps postgres
@@ -437,6 +474,7 @@ docker-compose restart postgres
 ```
 
 ### Redis Connection Issues
+
 ```bash
 # Check Redis
 docker-compose exec redis redis-cli ping
@@ -445,6 +483,7 @@ docker-compose exec redis redis-cli ping
 ```
 
 ### Migration Issues
+
 ```bash
 # Reset database (⚠️ destroys data)
 yarn workspace @mini-compete/backend prisma migrate reset
@@ -457,16 +496,19 @@ yarn workspace @mini-compete/backend prisma db push
 
 1. **Set production environment variables**
 2. **Build Docker images**
+
 ```bash
 docker-compose -f docker-compose.yml build
 ```
 
 3. **Run migrations**
+
 ```bash
 docker-compose exec backend yarn prisma migrate deploy
 ```
 
 4. **Scale workers** (if needed)
+
 ```bash
 docker-compose up -d --scale worker=3
 ```
@@ -486,6 +528,7 @@ MIT License - see LICENSE file for details
 ## 🙏 Acknowledgments
 
 Built with:
+
 - [NestJS](https://nestjs.com/)
 - [Next.js](https://nextjs.org/)
 - [Prisma](https://www.prisma.io/)

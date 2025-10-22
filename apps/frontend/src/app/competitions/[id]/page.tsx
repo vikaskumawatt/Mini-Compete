@@ -45,10 +45,11 @@ export default function CompetitionDetailPage() {
     try {
       // Generate idempotency key
       const idempotencyKey = `${user.id}-${params.id}-${Date.now()}`;
-      
+
       await competitions.register(params.id as string, idempotencyKey);
       setSuccess('Registration successful! Check your mailbox for confirmation.');
       setTimeout(() => router.push('/dashboard'), 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -102,10 +103,7 @@ export default function CompetitionDetailPage() {
 
           <div className="flex flex-wrap gap-2 mb-6">
             {comp.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full"
-              >
+              <span key={tag} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
                 {tag}
               </span>
             ))}
@@ -132,16 +130,12 @@ export default function CompetitionDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Registration Deadline:</dt>
-                  <dd className="font-medium">
-                    {new Date(comp.regDeadline).toLocaleString()}
-                  </dd>
+                  <dd className="font-medium">{new Date(comp.regDeadline).toLocaleString()}</dd>
                 </div>
                 {comp.startDate && (
                   <div className="flex justify-between">
                     <dt className="text-gray-600">Start Date:</dt>
-                    <dd className="font-medium">
-                      {new Date(comp.startDate).toLocaleString()}
-                    </dd>
+                    <dd className="font-medium">{new Date(comp.startDate).toLocaleString()}</dd>
                   </div>
                 )}
               </dl>
@@ -203,10 +197,7 @@ export default function CompetitionDetailPage() {
                 Organizers Cannot Register
               </div>
             )}
-            <Link
-              href="/"
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
+            <Link href="/" className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
               Back
             </Link>
           </div>

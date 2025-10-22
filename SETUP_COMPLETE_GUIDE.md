@@ -21,6 +21,7 @@ docker-compose --version
 ```
 
 If any are missing, install them:
+
 - **Node.js**: https://nodejs.org/
 - **Yarn**: `npm install -g yarn`
 - **Docker**: https://docs.docker.com/get-docker/
@@ -42,6 +43,7 @@ chmod +x setup.sh
 ```
 
 The script will:
+
 - Check prerequisites
 - Let you choose Docker or Local setup
 - Configure environment files
@@ -70,11 +72,13 @@ cp apps/backend/.env.example apps/backend/.env
 #### Step 2: Configure JWT Secret
 
 Open `apps/backend/.env` and update:
+
 ```env
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-min-32-chars
 ```
 
 Generate a secure secret:
+
 ```bash
 # On macOS/Linux
 openssl rand -base64 32
@@ -185,6 +189,7 @@ yarn workspace @mini-compete/frontend dev
 ```
 
 **Alternative** (using Make):
+
 ```bash
 make dev
 ```
@@ -193,18 +198,19 @@ make dev
 
 Once setup is complete, you can access:
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| **Frontend** | http://localhost:3000 | User interface |
-| **Backend API** | http://localhost:3001 | REST API |
-| **API Docs** | http://localhost:3001/api/docs | Swagger documentation |
-| **Prisma Studio** | Run `make studio` | Database GUI |
+| Service           | URL                            | Description           |
+| ----------------- | ------------------------------ | --------------------- |
+| **Frontend**      | http://localhost:3000          | User interface        |
+| **Backend API**   | http://localhost:3001          | REST API              |
+| **API Docs**      | http://localhost:3001/api/docs | Swagger documentation |
+| **Prisma Studio** | Run `make studio`              | Database GUI          |
 
 ## 🔑 Test Credentials
 
 After seeding, login with these accounts:
 
 ### Organizers (Can create competitions)
+
 ```
 Email: organizer1@minicompete.com
 Password: password123
@@ -214,6 +220,7 @@ Password: password123
 ```
 
 ### Participants (Can register for competitions)
+
 ```
 Email: participant1@minicompete.com
 Password: password123

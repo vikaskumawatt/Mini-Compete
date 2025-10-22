@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -16,6 +10,7 @@ import { tap } from 'rxjs/operators';
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const { method, url, body, headers } = request;
@@ -25,9 +20,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const startTime = Date.now();
 
     // Log request
-    this.logger.log(
-      `➡️  ${method} ${url} - User: ${userId} - UA: ${userAgent.substring(0, 50)}`,
-    );
+    this.logger.log(`➡️  ${method} ${url} - User: ${userId} - UA: ${userAgent.substring(0, 50)}`);
 
     // Log body for POST/PUT/PATCH (excluding password fields)
     if (['POST', 'PUT', 'PATCH'].includes(method) && body) {
@@ -42,9 +35,7 @@ export class LoggingInterceptor implements NestInterceptor {
           const { statusCode } = response;
           const responseTime = Date.now() - startTime;
 
-          this.logger.log(
-            `⬅️  ${method} ${url} - ${statusCode} - ${responseTime}ms`,
-          );
+          this.logger.log(`⬅️  ${method} ${url} - ${statusCode} - ${responseTime}ms`);
 
           // Log response for debugging (optional, can be verbose)
           if (process.env.NODE_ENV === 'development') {
@@ -52,6 +43,7 @@ export class LoggingInterceptor implements NestInterceptor {
           }
         },
         error: (error) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const response = context.switchToHttp().getResponse();
           const statusCode = error.status || 500;
           const responseTime = Date.now() - startTime;
@@ -67,6 +59,7 @@ export class LoggingInterceptor implements NestInterceptor {
   /**
    * Remove sensitive fields from body before logging
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sanitizeBody(body: any): any {
     if (typeof body !== 'object' || body === null) {
       return body;

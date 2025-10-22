@@ -1,5 +1,5 @@
-import { PrismaClient, Role } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -22,7 +22,7 @@ async function main() {
       email: 'organizer1@minicompete.com',
       name: 'Alice Organizer',
       password: hashedPassword,
-      role: Role.ORGANIZER,
+      role: 'ORGANIZER',
     },
   });
 
@@ -31,7 +31,7 @@ async function main() {
       email: 'organizer2@minicompete.com',
       name: 'Bob Organizer',
       password: hashedPassword,
-      role: Role.ORGANIZER,
+      role: 'ORGANIZER',
     },
   });
 
@@ -45,7 +45,7 @@ async function main() {
         email: `participant${i}@minicompete.com`,
         name: `Participant ${i}`,
         password: hashedPassword,
-        role: Role.PARTICIPANT,
+        role: 'PARTICIPANT',
       },
     });
     participants.push(participant);
@@ -68,7 +68,8 @@ async function main() {
     },
     {
       title: 'AI Innovation Challenge',
-      description: 'Compete to build the most innovative AI-powered solution for real-world problems.',
+      description:
+        'Compete to build the most innovative AI-powered solution for real-world problems.',
       tags: ['ai', 'machine-learning', 'innovation'],
       capacity: 30,
       seatsLeft: 30,
@@ -98,7 +99,8 @@ async function main() {
     },
     {
       title: 'Data Science Marathon',
-      description: 'Analyze real datasets and build predictive models in this intensive competition.',
+      description:
+        'Analyze real datasets and build predictive models in this intensive competition.',
       tags: ['data-science', 'analytics', 'statistics'],
       capacity: 40,
       seatsLeft: 40,

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCompetitionDto } from './dto/competitions.dto';
+import { CreateCompetitionDto } from './dto/create-competition.dto';
 
 @Injectable()
 export class CompetitionsService {
@@ -45,6 +45,7 @@ export class CompetitionsService {
   }
 
   async findAll(filters?: { search?: string; tags?: string[] }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
       regDeadline: {
         gte: new Date(),

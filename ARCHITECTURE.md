@@ -3,6 +3,7 @@
 This document explains the architectural decisions, trade-offs, and implementation details of the Mini Compete system.
 
 ## Table of Contents
+
 1. [System Overview](#system-overview)
 2. [Idempotency Implementation](#idempotency-implementation)
 3. [Concurrency Control](#concurrency-control)
@@ -46,6 +47,7 @@ This document explains the architectural decisions, trade-offs, and implementati
 ### Retry Strategy
 
 **Exponential Backoff**:
+
 ```typescript
 {
   attempts: 3,
@@ -57,6 +59,7 @@ This document explains the architectural decisions, trade-offs, and implementati
 ```
 
 **Retry Schedule**:
+
 - Attempt 1: Immediate
 - Attempt 2: 2 seconds after failure
 - Attempt 3: 4 seconds after failure
@@ -64,6 +67,7 @@ This document explains the architectural decisions, trade-offs, and implementati
 - After 3 failures → DLQ
 
 **Why Exponential?**
+
 - Transient errors (network blips) often resolve quickly
 - Gives external systems time to recover
 - Prevents thundering herd problem
@@ -71,6 +75,7 @@ This document explains the architectural decisions, trade-offs, and implementati
 ### Job Payload Design
 
 **Confirmation Job**:
+
 ```typescript
 {
   registrationId: string,
@@ -85,6 +90,7 @@ This document explains the architectural decisions, trade-offs, and implementati
 **Design Choice**: Include denormalized data (userName, competitionTitle) to avoid database lookups in worker.
 
 **Trade-off**:
+
 - Pro: Worker faster, less DB load
 - Con: Data might be stale if user updates profile
 - Decision: Acceptable for confirmation emails (not critical to be up-to-date)
@@ -94,6 +100,7 @@ This document explains the architectural decisions, trade-offs, and implementati
 **Purpose**: Isolate permanently failed jobs for manual investigation
 
 **Implementation**:
+
 ```sql
 CREATE TABLE failed_jobs (
   id UUID PRIMARY KEY,
@@ -107,6 +114,7 @@ CREATE TABLE failed_jobs (
 ```
 
 **Monitoring**:
+
 ```sql
 -- Check recent failures
 SELECT queue, COUNT(*), MAX(failed_at)
@@ -116,6 +124,7 @@ GROUP BY queue;
 ```
 
 **Recovery Process**:
+
 1. Investigate error in `failed_jobs` table
 2. Fix root cause (e.g., external API down)
 3. Manually re-enqueue or delete
@@ -123,11 +132,12 @@ GROUP BY queue;
 ### Cron Integration
 
 **Reminder Cron Job**:
+
 ```typescript
 @Cron('0 0 * * *')  // Daily at midnight
 async sendUpcomingReminders() {
   const competitions = await findCompetitionsStartingIn24Hours();
-  
+
   for (const competition of competitions) {
     for (const registration of competition.registrations) {
       await reminderQueue.add('notify', {
@@ -143,6 +153,7 @@ async sendUpcomingReminders() {
 **Design Choice**: Cron enqueues jobs, worker processes them
 
 **Why?**
+
 - Cron runs on single node (no duplicate work)
 - Worker can scale horizontally
 - Retry logic for individual notifications
@@ -152,13 +163,14 @@ async sendUpcomingReminders() {
 ### Schema Highlights
 
 **1. User Table**
+
 ```prisma
 model User {
   id       String @id @default(uuid())
   email    String @unique
   password String  // Hashed with bcrypt
   role     Role    @default(PARTICIPANT)
-  
+
   @@index([email])
 }
 ```
@@ -166,6 +178,7 @@ model User {
 **Design**: Email as unique identifier, role enum for RBAC
 
 **2. Competition Table**
+
 ```prisma
 model Competition {
   id          String @id @default(uuid())
@@ -173,40 +186,44 @@ model Competition {
   seatsLeft   Int
   regDeadline DateTime
   version     Int    @default(0)  // Optimistic locking
-  
+
   @@index([regDeadline])  // For cron queries
 }
 ```
 
 **Key Fields**:
+
 - `seatsLeft`: Denormalized for performance (alternative: COUNT registrations)
 - `version`: Optimistic lock counter
 - `regDeadline`: Indexed for efficient cron queries
 
 **3. Registration Table**
+
 ```prisma
 model Registration {
   userId         String
   competitionId  String
   idempotencyKey String? @unique
   status         RegistrationStatus
-  
+
   @@unique([userId, competitionId])  // One registration per user-competition
   @@index([competitionId, status])   // For organizer queries
 }
 ```
 
 **Constraints**:
+
 - Composite unique: Prevents same user registering twice (DB-level safety)
 - Idempotency key unique: Enforces idempotency at DB level
 
 **4. IdempotencyLog Table**
+
 ```prisma
 model IdempotencyLog {
   key       String   @id
   response  Json     // Cached response
   expiresAt DateTime
-  
+
   @@index([expiresAt])  // For cleanup cron
 }
 ```
@@ -216,18 +233,21 @@ model IdempotencyLog {
 ### Indexing Strategy
 
 **Query Patterns**:
+
 1. Find competitions by deadline (cron): `INDEX(regDeadline)`
 2. Find user's registrations: `INDEX(userId)`
 3. Find competition registrations: `INDEX(competitionId, status)`
 4. Idempotency lookup: `PRIMARY KEY(key)` + `UNIQUE(idempotencyKey)`
 
 **Trade-off**:
+
 - More indexes → Faster reads, slower writes
 - Decision: Read-heavy system, optimize for queries
 
 ### Data Integrity
 
 **Foreign Key Cascades**:
+
 ```prisma
 competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 ```
@@ -243,12 +263,14 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: Monorepo (Turborepo)
 
 **Pros**:
+
 - Shared TypeScript types
 - Atomic changes across frontend/backend
 - Single CI/CD pipeline
 - Easier local development
 
 **Cons**:
+
 - Larger repository
 - Build cache management complexity
 - Team scaling challenges (many people, one repo)
@@ -260,12 +282,14 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: REST
 
 **Pros**:
+
 - Simpler for this use case (CRUD operations)
 - Better caching (HTTP standard)
 - Swagger documentation out-of-box
 - No over-fetching concerns (simple data model)
 
 **Cons**:
+
 - Multiple endpoints for related data
 - Frontend needs multiple requests sometimes
 
@@ -276,12 +300,14 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: BullMQ (Bull + TypeScript)
 
 **Evaluated**:
+
 - **RabbitMQ**: More features, heavier, separate service
 - **Kafka**: Overkill for this scale, event streaming focus
 - **AWS SQS**: Cloud vendor lock-in
 - **Database Queue**: Simple but polling overhead
 
 **Why BullMQ?**
+
 - Redis already required (caching, locks)
 - TypeScript support
 - Built-in retries, DLQ
@@ -292,11 +318,13 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: JWT (stateless)
 
 **Pros**:
+
 - No session store needed
 - Horizontal scaling (any server validates)
 - Mobile app friendly
 
 **Cons**:
+
 - Can't revoke tokens (except expiry)
 - Slightly larger payload vs. session ID
 
@@ -307,12 +335,14 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: Prisma
 
 **Pros**:
+
 - Type-safe queries (generated from schema)
 - Excellent migrations
 - Great DX (autocomplete, error messages)
 - Active community
 
 **Cons**:
+
 - Generated client size
 - Some advanced SQL requires raw queries
 - Migration file format proprietary
@@ -324,10 +354,12 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: Both (optimistic for writes, pessimistic for reads)
 
 **Optimistic** (version field):
+
 - Detect conflicts after attempt
 - Better for low-contention scenarios
 
 **Pessimistic** (FOR UPDATE):
+
 - Prevent conflicts upfront
 - Better for high-contention scenarios
 
@@ -338,11 +370,13 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 **Decision**: Modular monolith
 
 **Rationale**:
+
 - System not large enough for microservices complexity
 - Shared database simplifies transactions
 - Easier deployment/operations
 
 **When to Split**:
+
 - Worker as separate process (already done)
 - Future: Extract competition service if teams grow
 
@@ -351,6 +385,7 @@ competition Competition @relation(fields: [competitionId], references: [id], onD
 ### Bottlenecks & Mitigations
 
 **1. Database Connection Pool**
+
 ```typescript
 // Prisma connection pool
 datasource db {
@@ -363,6 +398,7 @@ postgresql://user:pass@host/db?connection_limit=20&pool_timeout=30
 ```
 
 **2. Redis Connection Pool**
+
 ```typescript
 // BullMQ uses ioredis with pooling
 {
@@ -375,6 +411,7 @@ postgresql://user:pass@host/db?connection_limit=20&pool_timeout=30
 ```
 
 **3. API Rate Limiting** (Future)
+
 ```typescript
 @UseGuards(ThrottlerGuard)
 @Throttle(10, 60)  // 10 requests per minute
@@ -383,10 +420,12 @@ postgresql://user:pass@host/db?connection_limit=20&pool_timeout=30
 ### Caching Strategy
 
 **Current**:
+
 - Idempotency responses (Redis, 24h)
 - Distributed locks (Redis, 5s)
 
 **Future Enhancements**:
+
 - Competition list cache (5 min TTL)
 - User profile cache (10 min TTL)
 - Competition details cache (1 min TTL, invalidate on update)
@@ -394,12 +433,14 @@ postgresql://user:pass@host/db?connection_limit=20&pool_timeout=30
 ### Monitoring & Observability
 
 **Recommended Tools**:
+
 - **Logs**: Winston + ELK stack
 - **Metrics**: Prometheus + Grafana
 - **Tracing**: Jaeger/OpenTelemetry
 - **Queue**: Bull Board UI
 
 **Key Metrics**:
+
 - Registration success rate
 - Average registration latency
 - Queue depth and processing time
@@ -409,25 +450,30 @@ postgresql://user:pass@host/db?connection_limit=20&pool_timeout=30
 ## Security Considerations
 
 ### Authentication
+
 - Passwords hashed with bcrypt (10 rounds)
 - JWT signed with HS256 algorithm
 - Token expiry enforced
 
 ### Authorization
+
 - Role-based access control (RBAC)
 - Guards on all protected endpoints
 - User can only access their own data
 
 ### Input Validation
+
 - Class-validator on all DTOs
 - Whitelist unknown properties
 - Transform and sanitize inputs
 
 ### SQL Injection Prevention
+
 - Prisma parameterizes all queries
 - No raw SQL concatenation
 
 ### CORS Configuration
+
 ```typescript
 app.enableCors({
   origin: process.env.FRONTEND_URL,
@@ -438,6 +484,7 @@ app.enableCors({
 ## Scalability Path
 
 ### Current Capacity
+
 - **Users**: 10K+ concurrent
 - **Competitions**: 1K+ active
 - **Registrations**: 100/sec sustained
@@ -446,22 +493,26 @@ app.enableCors({
 ### Scaling Strategies
 
 **Horizontal Scaling**:
+
 1. API servers: Add instances behind load balancer
 2. Workers: Increase worker count (`docker-compose scale worker=5`)
 3. Redis: Redis Cluster or Sentinel for HA
 
 **Vertical Scaling**:
+
 1. Database: Upgrade instance size
 2. Add read replicas for queries
 3. Connection pooling (PgBouncer)
 
 **Optimization**:
+
 1. Add database indexes for slow queries
 2. Implement query result caching
 3. Use CDN for frontend assets
 4. Async job processing for non-critical tasks
 
 **When to Shard**:
+
 - Single DB struggles with write load (>10K writes/sec)
 - Shard by competition ID or user ID
 - Requires application-level routing
@@ -469,6 +520,7 @@ app.enableCors({
 ## Future Enhancements
 
 ### Short Term
+
 - [ ] Email integration (SendGrid/SES) instead of MailBox simulation
 - [ ] Frontend pagination for competition lists
 - [ ] File upload for competition images
@@ -476,6 +528,7 @@ app.enableCors({
 - [ ] Password reset flow
 
 ### Medium Term
+
 - [ ] Real-time updates (WebSockets/SSE)
 - [ ] Advanced search/filtering (Elasticsearch)
 - [ ] Analytics dashboard for organizers
@@ -483,6 +536,7 @@ app.enableCors({
 - [ ] Multi-language support (i18n)
 
 ### Long Term
+
 - [ ] Mobile app (React Native)
 - [ ] Recommendation engine (ML)
 - [ ] Social features (teams, chat)
@@ -492,6 +546,7 @@ app.enableCors({
 ## Conclusion
 
 This architecture prioritizes:
+
 1. **Correctness**: No overselling, idempotency guarantees
 2. **Reliability**: Retry logic, DLQ, graceful degradation
 3. **Maintainability**: Clear separation of concerns, type safety
@@ -499,19 +554,20 @@ This architecture prioritizes:
 
 Trade-offs were made favoring consistency over availability (strong consistency in registration), suitable for the competition registration domain where accuracy is critical.
 
-The system is production-ready for small to medium scale deployments (10K users, 1K competitions) and has clear scaling paths for growth.───────┘         └──────────────┘         └─────────────┘
-                              │
-                              ▼
-                        ┌──────────────┐         ┌─────────────┐
-                        │    Redis     │────────▶│   Worker    │
-                        │    Queue     │         │  Process    │
-                        └──────────────┘         └─────────────┘
-                              │
-                              ▼
-                        ┌──────────────┐
-                        │  Cron Jobs   │
-                        │  (Scheduler) │
-                        └──────────────┘
+The system is production-ready for small to medium scale deployments (10K users, 1K competitions) and has clear scaling paths for growth.───────┘ └──────────────┘ └─────────────┘
+│
+▼
+┌──────────────┐ ┌─────────────┐
+│ Redis │────────▶│ Worker │
+│ Queue │ │ Process │
+└──────────────┘ └─────────────┘
+│
+▼
+┌──────────────┐
+│ Cron Jobs │
+│ (Scheduler) │
+└──────────────┘
+
 ```
 
 ### Component Responsibilities
@@ -555,32 +611,34 @@ In distributed systems, network failures and client retries can cause duplicate 
 ### Solution: Multi-Layer Idempotency
 
 ```
+
 ┌─────────────────────────────────────────────────┐
-│  Client sends Idempotency-Key header            │
-│  Example: "user-123-comp-456-1704067200"        │
+│ Client sends Idempotency-Key header │
+│ Example: "user-123-comp-456-1704067200" │
 └────────────────┬────────────────────────────────┘
-                 │
-                 ▼
+│
+▼
 ┌─────────────────────────────────────────────────┐
-│  Layer 1: Redis Cache Check (Fast)              │
-│  TTL: 24 hours                                   │
-│  If found → Return cached response immediately   │
+│ Layer 1: Redis Cache Check (Fast) │
+│ TTL: 24 hours │
+│ If found → Return cached response immediately │
 └────────────────┬────────────────────────────────┘
-                 │ Cache miss
-                 ▼
+│ Cache miss
+▼
 ┌─────────────────────────────────────────────────┐
-│  Layer 2: Database Log Check (Persistent)       │
-│  Table: idempotency_logs                        │
-│  If found && not expired → Return stored result  │
+│ Layer 2: Database Log Check (Persistent) │
+│ Table: idempotency_logs │
+│ If found && not expired → Return stored result │
 └────────────────┬────────────────────────────────┘
-                 │ Not found
-                 ▼
+│ Not found
+▼
 ┌─────────────────────────────────────────────────┐
-│  Layer 3: Process Request                       │
-│  Execute registration logic                      │
-│  Store result in Redis + Database                │
+│ Layer 3: Process Request │
+│ Execute registration logic │
+│ Store result in Redis + Database │
 └─────────────────────────────────────────────────┘
-```
+
+````
 
 ### Implementation Details
 
@@ -594,9 +652,10 @@ In distributed systems, network failures and client retries can cause duplicate 
 // Client-side
 const idempotencyKey = `${userId}-${competitionId}-${Date.now()}`;
 // Or use UUID: crypto.randomUUID()
-```
+````
 
 **Response Caching**:
+
 ```typescript
 {
   registrationId: "uuid",
@@ -680,13 +739,15 @@ const idempotencyKey = `${userId}-${competitionId}-${Date.now()}`;
 ### Implementation Details
 
 **1. Distributed Lock (Redis)**
+
 ```typescript
 // Acquire lock
 const locked = await redis.set(
   `lock:competition:${competitionId}`,
   lockValue,
-  'PX', 5000,  // 5 second TTL
-  'NX'         // Only if not exists
+  'PX',
+  5000, // 5 second TTL
+  'NX', // Only if not exists
 );
 
 // Release lock (atomic Lua script)
@@ -703,6 +764,7 @@ await redis.eval(script, 1, lockKey, lockValue);
 **Why Lua script?** Prevents releasing another process's lock if current process is slow.
 
 **2. Database Transaction**
+
 ```typescript
 await prisma.$transaction(
   async (tx) => {
@@ -710,13 +772,13 @@ await prisma.$transaction(
     const competition = await tx.competition.findUnique({
       where: { id: competitionId }
     });
-    
+
     // Check capacity
     if (competition.seatsLeft <= 0) throw new Error('Full');
-    
+
     // Create registration
     await tx.registration.create({ ... });
-    
+
     // Decrement seats with optimistic lock
     await tx.competition.update({
       where: {
@@ -737,6 +799,7 @@ await prisma.$transaction(
 ```
 
 **3. Optimistic Locking**
+
 - `version` field increments on every update
 - UPDATE fails if version changed (another transaction modified it)
 - Client retries on failure
@@ -744,11 +807,13 @@ await prisma.$transaction(
 ### Performance Characteristics
 
 **Throughput**: ~50-100 registrations/second per competition
+
 - Redis lock: ~1ms overhead
 - DB transaction: ~10-50ms depending on load
 - Total latency: ~50-100ms per registration
 
 **Scalability**:
+
 - Horizontal: Multiple API servers (Redis coordinates)
 - Vertical: Database connection pooling, read replicas for queries
 
@@ -822,3 +887,4 @@ await prisma.$transaction(
 │  - Processes job                    │
 │  - Writes to MailBox table          │
 └──────
+```

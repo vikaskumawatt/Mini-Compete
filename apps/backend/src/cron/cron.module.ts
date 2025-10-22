@@ -1,4 +1,4 @@
-<parameter name="content">import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { CronService } from './cron.service';
 

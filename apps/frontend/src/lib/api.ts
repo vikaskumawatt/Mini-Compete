@@ -22,18 +22,19 @@ api.interceptors.request.use((config) => {
 
 // Auth APIs
 export const auth = {
-  signup: (data: { name: string; email: string; password: string; role: 'PARTICIPANT' | 'ORGANIZER' }) =>
-    api.post('/auth/signup', data),
-  login: (data: { email: string; password: string }) =>
-    api.post('/auth/login', data),
+  signup: (data: {
+    name: string;
+    email: string;
+    password: string;
+    role: 'PARTICIPANT' | 'ORGANIZER';
+  }) => api.post('/auth/signup', data),
+  login: (data: { email: string; password: string }) => api.post('/auth/login', data),
 };
 
 // Competition APIs
 export const competitions = {
-  getAll: (params?: { search?: string; tags?: string }) =>
-    api.get('/competitions', { params }),
-  getOne: (id: string) =>
-    api.get(`/competitions/${id}`),
+  getAll: (params?: { search?: string; tags?: string }) => api.get('/competitions', { params }),
+  getOne: (id: string) => api.get(`/competitions/${id}`),
   create: (data: {
     title: string;
     description: string;
@@ -41,24 +42,20 @@ export const competitions = {
     capacity: number;
     regDeadline: string;
     startDate?: string;
-  }) =>
-    api.post('/competitions', data),
-  getMyCompetitions: () =>
-    api.get('/competitions/my-competitions'),
+  }) => api.post('/competitions', data),
+  getMyCompetitions: () => api.get('/competitions/my-competitions'),
   register: (id: string, idempotencyKey?: string) =>
     api.post(
       `/competitions/${id}/register`,
       {},
-      idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : {}
+      idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : {},
     ),
-  getRegistrations: (id: string) =>
-    api.get(`/competitions/${id}/registrations`),
+  getRegistrations: (id: string) => api.get(`/competitions/${id}/registrations`),
 };
 
 // Registration APIs
 export const registrations = {
-  getMy: () =>
-    api.get('/competitions/registrations/my'),
+  getMy: () => api.get('/competitions/registrations/my'),
 };
 
 export default api;

@@ -20,7 +20,9 @@ export class ReminderProcessor {
 
   @Process('notify')
   async handleReminder(job: Job<ReminderJobData>) {
-    this.logger.log(`Processing reminder job ${job.id} for registration ${job.data.registrationId}`);
+    this.logger.log(
+      `Processing reminder job ${job.id} for registration ${job.data.registrationId}`,
+    );
 
     try {
       // Verify registration still exists

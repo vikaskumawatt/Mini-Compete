@@ -4,12 +4,12 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const logger = new Logger('Worker');
-  
+
   const app = await NestFactory.createApplicationContext(AppModule);
-  
+
   logger.log('🔄 Worker started and listening for jobs...');
   logger.log('📋 Registered queues: registration, reminder');
-  
+
   // Keep the process alive
   process.on('SIGTERM', async () => {
     logger.log('SIGTERM received, shutting down worker...');

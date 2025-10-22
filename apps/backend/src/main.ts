@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  const logger = new Logger('Bootstrap');
 
   // Enable CORS
   app.enableCors({
@@ -41,9 +42,9 @@ async function bootstrap() {
 
   const port = configService.get('BACKEND_PORT') || 3001;
   await app.listen(port);
-  
-  console.log(`🚀 Backend server running on http://localhost:${port}`);
-  console.log(`📚 API Documentation available at http://localhost:${port}/api/docs`);
+
+  logger.log(`🚀 Backend server running on http://localhost:${port}`);
+  logger.log(`📚 API Documentation available at http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

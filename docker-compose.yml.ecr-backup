@@ -1,7 +1,9 @@
+version: '3.9'
+
 # Development-only services (Postgres + Redis)
 services:
   postgres:
-    image: public.ecr.aws/docker/library/postgres:15-alpine
+    image: postgres:15-alpine
     container_name: mini-compete-postgres-dev
     restart: unless-stopped
     environment:
@@ -19,7 +21,7 @@ services:
       retries: 5
 
   redis:
-    image: public.ecr.aws/docker/library/redis:7-alpine
+    image: redis:7-alpine
     container_name: mini-compete-redis-dev
     restart: unless-stopped
     ports:
@@ -44,52 +46,6 @@ services:
       - '8081:8081'
     depends_on:
       - redis
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8081"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  backend:
-    build:
-      context: .
-      dockerfile: docker/backend/Dockerfile
-    container_name: mini-compete-backend
-    restart: unless-stopped
-    env_file:
-      - ./apps/backend/.env
-    depends_on:
-      - postgres
-      - redis
-    ports:
-      - "3001:3001"
-    command: node main.js
-
-  frontend:
-    build:
-      context: .
-      dockerfile: docker/frontend/Dockerfile
-    container_name: mini-compete-frontend
-    restart: unless-stopped
-    depends_on:
-      - backend
-    ports:
-      - "3000:3000"
-    command: node server.js 
-
-  worker:
-    build:
-      context: .
-      dockerfile: docker/worker/Dockerfile
-    container_name: mini-compete-worker
-    restart: unless-stopped
-    env_file:
-      - ./apps/backend/.env
-    depends_on:
-      - backend
-      - redis
-      - postgres
-    command: node worker.js
 
 volumes:
   postgres_dev_data:

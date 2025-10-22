@@ -25,7 +25,7 @@ export class IdempotencyMiddleware implements NestMiddleware {
 
       // Log for debugging
       this.logger.debug(`Idempotency key present: ${idempotencyKey.substring(0, 20)}...`);
-      
+
       // Attach to request for easy access in controllers/services
       (req as any).idempotencyKey = idempotencyKey;
     }

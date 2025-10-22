@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Initial project setup with Turborepo monorepo
 - NestJS backend with Prisma ORM and PostgreSQL
 - Next.js frontend with Tailwind CSS
@@ -29,18 +30,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Makefile for common development tasks
 
 ### Changed
+
 - N/A
 
 ### Deprecated
+
 - N/A
 
 ### Removed
+
 - N/A
 
 ### Fixed
+
 - N/A
 
 ### Security
+
 - Passwords hashed with bcrypt (10 rounds)
 - JWT tokens with configurable expiration
 - Input validation with class-validator
@@ -50,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-01-XX
 
 ### Added
+
 - First stable release
 - Complete competition management system
 - Production-ready with Docker support

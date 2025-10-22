@@ -23,7 +23,7 @@ export class QueueService {
     competitionTitle: string;
   }): Promise<Job> {
     this.logger.log(`Adding confirmation job for registration ${data.registrationId}`);
-    
+
     return this.registrationQueue.add('confirmation', data, {
       attempts: 3,
       backoff: {
@@ -47,7 +47,7 @@ export class QueueService {
     startDate: Date;
   }): Promise<Job> {
     this.logger.log(`Adding reminder job for registration ${data.registrationId}`);
-    
+
     return this.reminderQueue.add('notify', data, {
       attempts: 3,
       backoff: {
@@ -141,7 +141,10 @@ export class QueueService {
   /**
    * Clean completed jobs older than specified age
    */
-  async cleanCompletedJobs(queueName: 'registration' | 'reminder', olderThanMs: number = 86400000): Promise<number> {
+  async cleanCompletedJobs(
+    queueName: 'registration' | 'reminder',
+    olderThanMs: number = 86400000,
+  ): Promise<number> {
     const queue = queueName === 'registration' ? this.registrationQueue : this.reminderQueue;
     const jobs = await queue.clean(olderThanMs, 'completed');
     this.logger.log(`Cleaned ${jobs.length} completed jobs from ${queueName} queue`);
@@ -151,7 +154,10 @@ export class QueueService {
   /**
    * Clean failed jobs older than specified age
    */
-  async cleanFailedJobs(queueName: 'registration' | 'reminder', olderThanMs: number = 604800000): Promise<number> {
+  async cleanFailedJobs(
+    queueName: 'registration' | 'reminder',
+    olderThanMs: number = 604800000,
+  ): Promise<number> {
     const queue = queueName === 'registration' ? this.registrationQueue : this.reminderQueue;
     const jobs = await queue.clean(olderThanMs, 'failed');
     this.logger.log(`Cleaned ${jobs.length} failed jobs from ${queueName} queue`);

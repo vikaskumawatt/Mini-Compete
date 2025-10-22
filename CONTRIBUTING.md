@@ -39,6 +39,7 @@ Thank you for your interest in contributing to Mini Compete! This document provi
 ### Making Changes
 
 1. **Create a feature branch**
+
    ```bash
    git checkout -b feature/my-new-feature
    ```
@@ -48,6 +49,7 @@ Thank you for your interest in contributing to Mini Compete! This document provi
 3. **Write/update tests** for your changes
 
 4. **Run tests locally**
+
    ```bash
    yarn test
    yarn lint
@@ -72,6 +74,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation only
@@ -81,6 +84,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - `chore`: Maintenance tasks
 
 **Examples:**
+
 ```
 feat(auth): add password reset functionality
 fix(registration): prevent duplicate registrations
@@ -146,6 +150,7 @@ yarn test:e2e
 - Mock external dependencies
 
 **Example:**
+
 ```typescript
 describe('CompetitionsService', () => {
   it('should create a competition', async () => {
@@ -154,9 +159,9 @@ describe('CompetitionsService', () => {
       capacity: 50,
       // ...
     };
-    
+
     const result = await service.create(organizerId, dto);
-    
+
     expect(result).toBeDefined();
     expect(result.title).toBe(dto.title);
   });
@@ -168,6 +173,7 @@ describe('CompetitionsService', () => {
 1. **Update documentation** if you changed APIs or behavior
 
 2. **Ensure all tests pass**
+
    ```bash
    yarn test
    yarn lint
@@ -177,6 +183,7 @@ describe('CompetitionsService', () => {
 3. **Update CHANGELOG.md** with your changes
 
 4. **Push to your fork**
+
    ```bash
    git push origin feature/my-new-feature
    ```
@@ -195,20 +202,24 @@ describe('CompetitionsService', () => {
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing performed
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Comments added for complex code
@@ -217,6 +228,7 @@ Brief description of changes
 - [ ] Tests pass locally
 
 ## Related Issues
+
 Fixes #123
 ```
 
@@ -240,13 +252,14 @@ yarn workspace @mini-compete/backend prisma migrate dev --name descriptive_name
 ## Adding Dependencies
 
 1. **Install in the correct workspace**
+
    ```bash
    # Backend
    yarn workspace @mini-compete/backend add package-name
-   
+
    # Frontend
    yarn workspace @mini-compete/frontend add package-name
-   
+
    # Dev dependency
    yarn workspace @mini-compete/backend add -D package-name
    ```

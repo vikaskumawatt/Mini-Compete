@@ -15,7 +15,11 @@ export class CronService {
   ) {}
 
   // Run every day at midnight (or every minute in dev for testing)
-  @Cron(process.env.NODE_ENV === 'development' ? CronExpression.EVERY_MINUTE : CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(
+    process.env.NODE_ENV === 'development'
+      ? CronExpression.EVERY_MINUTE
+      : CronExpression.EVERY_DAY_AT_MIDNIGHT,
+  )
   async sendUpcomingReminders() {
     this.logger.log('🕐 Running reminder cron job');
 
@@ -78,7 +82,9 @@ export class CronService {
         }
       }
 
-      this.logger.log(`✅ Reminder cron completed: ${jobsEnqueued} jobs enqueued for ${upcomingCompetitions.length} competitions`);
+      this.logger.log(
+        `✅ Reminder cron completed: ${jobsEnqueued} jobs enqueued for ${upcomingCompetitions.length} competitions`,
+      );
     } catch (error) {
       this.logger.error('❌ Error in reminder cron job:', error);
     }

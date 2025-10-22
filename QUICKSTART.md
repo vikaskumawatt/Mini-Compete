@@ -25,6 +25,7 @@ cp apps/backend/.env.example apps/backend/.env
 ### 2. Update JWT Secret
 
 Open `apps/backend/.env` and change:
+
 ```env
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-min-32-chars
 ```
@@ -50,10 +51,12 @@ docker-compose exec backend yarn prisma db seed
 ### 5. Login with Test Credentials
 
 **Participant:**
+
 - Email: `participant1@minicompete.com`
 - Password: `password123`
 
 **Organizer:**
+
 - Email: `organizer1@minicompete.com`
 - Password: `password123`
 

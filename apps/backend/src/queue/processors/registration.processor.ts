@@ -21,7 +21,9 @@ export class RegistrationProcessor {
 
   @Process('confirmation')
   async handleConfirmation(job: Job<ConfirmationJobData>) {
-    this.logger.log(`Processing confirmation job ${job.id} for registration ${job.data.registrationId}`);
+    this.logger.log(
+      `Processing confirmation job ${job.id} for registration ${job.data.registrationId}`,
+    );
 
     try {
       // Verify registration still exists and is valid

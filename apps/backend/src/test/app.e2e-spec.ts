@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { AppModule } from '../app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -14,7 +12,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -23,8 +21,6 @@ describe('AppController (e2e)', () => {
       }),
     );
 
-    prisma = app.get<PrismaService>(PrismaService);
-    
     await app.init();
   });
 
@@ -64,8 +60,6 @@ describe('AppController (e2e)', () => {
       role: 'PARTICIPANT',
     };
 
-    let authToken: string;
-
     it('/auth/signup (POST) - should create new user', () => {
       return request(app.getHttpServer())
         .post('/api/auth/signup')
@@ -75,15 +69,11 @@ describe('AppController (e2e)', () => {
           expect(res.body).toHaveProperty('token');
           expect(res.body).toHaveProperty('user');
           expect(res.body.user.email).toBe(testUser.email);
-          authToken = res.body.token;
         });
     });
 
     it('/auth/signup (POST) - should fail with duplicate email', () => {
-      return request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send(testUser)
-        .expect(409);
+      return request(app.getHttpServer()).post('/api/auth/signup').send(testUser).expect(409);
     });
 
     it('/auth/login (POST) - should login successfully', () => {
@@ -207,7 +197,7 @@ describe('AppController (e2e)', () => {
 
     it('/competitions/:id/register (POST) - should be idempotent', async () => {
       const idempotencyKey = `test-idempotent-${Date.now()}`;
-      
+
       // Create new participant for this test
       const newPartRes = await request(app.getHttpServer())
         .post('/api/auth/signup')

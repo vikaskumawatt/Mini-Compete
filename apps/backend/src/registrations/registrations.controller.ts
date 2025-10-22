@@ -1,10 +1,19 @@
-import { Controller, Post, Get, Param, UseGuards, Headers, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  UseGuards,
+  Headers,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { RegistrationsService } from './registrations.service';
-import { JwtAuthGuard, RolesGuard } from '../auth/guards/guards';
-import { CurrentUser } from '../auth/decorators/decorators';
-import { Roles } from '../auth/decorators/decorators';
+import { JwtAuthGuard, RolesGuard } from '../auth/guards/guard';
+import { CurrentUser } from '../auth/decorators/decorator';
+import { Roles } from '../auth/decorators/decorator';
 
 @ApiTags('Registrations')
 @Controller('competitions')
@@ -15,7 +24,11 @@ export class RegistrationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PARTICIPANT)
   @ApiBearerAuth()
-  @ApiHeader({ name: 'Idempotency-Key', required: false, description: 'Unique key for idempotent requests' })
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    required: false,
+    description: 'Unique key for idempotent requests',
+  })
   @ApiOperation({ summary: 'Register for a competition (Participant only)' })
   @ApiResponse({ status: 201, description: 'Registration successful' })
   @ApiResponse({ status: 400, description: 'Registration deadline passed or competition full' })
@@ -23,6 +36,7 @@ export class RegistrationsController {
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Param('id') competitionId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     @CurrentUser() user: any,
     @Headers('idempotency-key') idempotencyKey?: string,
   ) {
@@ -35,6 +49,7 @@ export class RegistrationsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user registrations' })
   @ApiResponse({ status: 200, description: 'List of user registrations' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getMyRegistrations(@CurrentUser() user: any) {
     return this.registrationsService.getUserRegistrations(user.id);
   }

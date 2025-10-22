@@ -4,171 +4,214 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { competitions } from '@/lib/api';
+import { getAuth, isOrganizer } from '@/lib/auth';
+import Header from '@/components/Header'; // Assuming Header exists from the list page
 
 export default function CreateCompetitionPage() {
   const router = useRouter();
+  const { user } = getAuth();
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    tags: '',
-    capacity: 50,
+    tags: '' as string, // Comma-separated input
+    capacity: '',
     regDeadline: '',
     startDate: '',
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  if (!user || !isOrganizer()) {
+    router.push('/auth/login?role=organizer');
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+
+    if (!formData.title || !formData.description || !formData.capacity || !formData.regDeadline) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const data = {
+      const tags = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+      const payload = {
         title: formData.title,
         description: formData.description,
-        tags: formData.tags.split(',').map((t) => t.trim()).filter(Boolean),
-        capacity: formData.capacity,
-        regDeadline: new Date(formData.regDeadline).toISOString(),
-        startDate: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
+        tags,
+        capacity: parseInt(formData.capacity, 10),
+        regDeadline: formData.regDeadline,
+        startDate: formData.startDate || undefined,
       };
 
-      await competitions.create(data);
-      router.push('/dashboard');
+      await competitions.create(payload);
+      setSuccess('Competition created successfully! Redirecting to your dashboard...');
+      setTimeout(() => router.push('/dashboard'), 2000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create competition');
+      setError(err.response?.data?.message || 'Failed to create competition.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/" className="text-2xl font-bold text-blue-600">
-            Mini Compete
-          </Link>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Header />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create Competition</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Fill in the details below to create a new competition
-          </p>
-        </div>
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="card p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Create New Competition
+            </h1>
+            <p className="text-gray-600">
+              Share your event with the community and attract talented participants.
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-6">
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
               {error}
             </div>
           )}
 
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Competition Title *
-            </label>
-            <input
-              id="title"
-              type="text"
-              required
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Code Sprint 2025"
-            />
-          </div>
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
+              {success}
+            </div>
+          )}
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description *
-            </label>
-            <textarea
-              id="description"
-              required
-              rows={4}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe your competition..."
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                Competition Title *
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="e.g., National Coding Challenge 2025"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
 
-          <div>
-            <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-              Tags (comma-separated)
-            </label>
-            <input
-              id="tags"
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., coding, hackathon, technology"
-            />
-          </div>
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description *
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                placeholder="Describe the competition, rules, prizes, and what participants can expect..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                required
+              />
+            </div>
 
-          <div>
-            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 mb-2">
-              Capacity *
-            </label>
-            <input
-              id="capacity"
-              type="number"
-              required
-              min={1}
-              value={formData.capacity}
-              onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            {/* Tags */}
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
+                Tags (comma-separated)
+              </label>
+              <input
+                type="text"
+                id="tags"
+                name="tags"
+                value={formData.tags}
+                onChange={handleChange}
+                placeholder="e.g., coding, hackathon, beginner"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="mt-1 text-sm text-gray-500">Help participants find your competition.</p>
+            </div>
 
-          <div>
-            <label htmlFor="regDeadline" className="block text-sm font-medium text-gray-700 mb-2">
-              Registration Deadline *
-            </label>
-            <input
-              id="regDeadline"
-              type="datetime-local"
-              required
-              value={formData.regDeadline}
-              onChange={(e) => setFormData({ ...formData, regDeadline: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            {/* Capacity */}
+            <div>
+              <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 mb-2">
+                Capacity *
+              </label>
+              <input
+                type="number"
+                id="capacity"
+                name="capacity"
+                value={formData.capacity}
+                onChange={handleChange}
+                placeholder="e.g., 100"
+                min="1"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
 
-          <div>
-            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-              Start Date (optional)
-            </label>
-            <input
-              id="startDate"
-              type="datetime-local"
-              value={formData.startDate}
-              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            {/* Registration Deadline */}
+            <div>
+              <label htmlFor="regDeadline" className="block text-sm font-medium text-gray-700 mb-2">
+                Registration Deadline *
+              </label>
+              <input
+                type="datetime-local"
+                id="regDeadline"
+                name="regDeadline"
+                value={formData.regDeadline}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
 
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Creating...' : 'Create Competition'}
-            </button>
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-            >
-              Cancel
-            </Link>
-          </div>
-        </form>
+            {/* Start Date (Optional) */}
+            <div>
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
+                Start Date (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                id="startDate"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="mt-1 text-sm text-gray-500">When the competition officially begins.</p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 shadow-lg"
+              >
+                {loading ? 'Creating...' : 'Create Competition'}
+              </button>
+              <Link
+                href="/competitions"
+                className="flex-1 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium text-center"
+              >
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </div>
       </main>
     </div>
   );
