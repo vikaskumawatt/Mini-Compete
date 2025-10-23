@@ -10,7 +10,7 @@ export class AppController {
   @Get()
   @ApiOperation({ summary: 'Health check' })
   getHealth() {
-    return this.appService.getHealth();
+    return 'Server is running';
   }
 
   @Get('health')
