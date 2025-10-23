@@ -17,7 +17,9 @@ async function bootstrap() {
   });
 
   // Global prefix
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['/', 'health'],
+  });
 
   // Validation pipe
   app.useGlobalPipes(
