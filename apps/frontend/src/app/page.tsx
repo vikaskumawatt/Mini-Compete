@@ -1,21 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { competitions } from '@/lib/api';
-import { getAuth, clearAuth } from '@/lib/auth';
+import Header from '@/components/Header';
 import type { Competition } from '@/types';
 
 export default function HomePage() {
-  const router = useRouter();
   const [comps, setComps] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const { user } = getAuth();
 
   useEffect(() => {
     loadCompetitions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCompetitions = async () => {
@@ -29,71 +27,9 @@ export default function HomePage() {
     }
   };
 
-  const handleLogout = () => {
-    clearAuth();
-    router.push('/auth/login');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Modern Navbar */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Mini Compete
-              </h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {user.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="hidden sm:block text-left">
-                      <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                      <p className="text-xs text-gray-500 capitalize">{user.role}</p>
-                    </div>
-                  </div>
-                  
-                  <Link
-                    href="/dashboard"
-                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    Dashboard
-                  </Link>
-                  
-                  <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/auth/login"
-                    className="px-6 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -105,7 +41,8 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Join exciting competitions, showcase your skills, and connect with like-minded individuals in our vibrant community.
+            Join exciting competitions, showcase your skills, and connect with like-minded
+            individuals in our vibrant community.
           </p>
         </div>
 
@@ -134,7 +71,7 @@ export default function HomePage() {
         {/* Competitions Grid */}
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Featured Competitions</h2>
-          
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, i) => (
@@ -156,14 +93,29 @@ export default function HomePage() {
           ) : comps.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-12 h-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No competitions found</h3>
-              <p className="text-gray-600 mb-6">Try adjusting your search or check back later for new competitions.</p>
+              <p className="text-gray-600 mb-6">
+                Try adjusting your search or check back later for new competitions.
+              </p>
               <button
-                onClick={() => { setSearch(''); loadCompetitions(); }}
+                onClick={() => {
+                  setSearch('');
+                  loadCompetitions();
+                }}
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
               >
                 View All Competitions
@@ -187,11 +139,11 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
                       {comp.description}
                     </p>
-                    
+
                     <div className="flex flex-wrap gap-2 mb-4">
                       {comp.tags.slice(0, 3).map((tag) => (
                         <span
@@ -207,7 +159,7 @@ export default function HomePage() {
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Capacity</span>
@@ -225,12 +177,12 @@ export default function HomePage() {
                         <div
                           className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
                           style={{
-                            width: `${(comp.seatsLeft / comp.capacity) * 100}%`
+                            width: `${(comp.seatsLeft / comp.capacity) * 100}%`,
                           }}
                         ></div>
                       </div>
                     </div>
-                    
+
                     <Link
                       href={`/competitions/${comp.id}`}
                       className="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium group-hover:scale-105 transform"
@@ -247,14 +199,21 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded"></div>
-              <span className="text-lg font-bold text-gray-900">Mini Compete</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            {/* Logo Section */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">MC</span>
+              </div>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">Mini Compete</span>
             </div>
-            <div className="text-gray-600 text-sm">
-              © 2025 Mini Compete. Building the future of competitive learning.
+
+            {/* Copyright Text */}
+            <div className="text-center md:text-right">
+              <p className="text-gray-600 text-sm sm:text-base">
+                © 2025 Mini Compete. Building the future of competitive learning.
+              </p>
             </div>
           </div>
         </div>

@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth, clearAuth, isOrganizer } from '@/lib/auth';
+import { getAuth, isOrganizer } from '@/lib/auth';
 import { competitions, registrations } from '@/lib/api';
+import Header from '@/components/Header';
 import type { Competition, Registration } from '@/types';
 
 export default function DashboardPage() {
@@ -38,11 +39,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    clearAuth();
-    router.push('/');
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CONFIRMED':
@@ -65,50 +61,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Modern Navbar */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-200">
-                Mini Compete
-              </h1>
-            </Link>
-            
-            <div className="flex items-center space-x-6">
-              <Link
-                href="/mailbox"
-                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-all duration-200 relative"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                {myRegs.some(reg => reg.status === 'PENDING') && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
-                )}
-              </Link>
-              
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-lg">
-                  {user.name?.charAt(0).toUpperCase()}
-                </div>
-                <div className="hidden md:block text-left">
-                  <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                  <p className="text-xs text-gray-500 capitalize">{user.role}</p>
-                </div>
-              </div>
-              
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
@@ -129,7 +82,7 @@ export default function DashboardPage() {
             {isOrganizer() && (
               <Link
                 href="/competitions/create"
-                className="btn-primary whitespace-nowrap flex justify-between items-center"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center whitespace-nowrap"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -143,7 +96,7 @@ export default function DashboardPage() {
         {/* Stats Overview */}
         {!isOrganizer() && myRegs.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="card p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Registrations</p>
@@ -157,7 +110,7 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="card p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Confirmed</p>
@@ -171,7 +124,7 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="card p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pending</p>
@@ -192,7 +145,7 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="card p-6 animate-pulse">
+                <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 animate-pulse">
                   <div className="h-6 bg-gray-200 rounded mb-4"></div>
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -208,7 +161,7 @@ export default function DashboardPage() {
         ) : isOrganizer() ? (
           myComps.length === 0 ? (
             // Empty State for Organizers
-            <div className="card p-12 text-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
               <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -218,7 +171,10 @@ export default function DashboardPage() {
               <p className="text-gray-600 mb-8 max-w-md mx-auto">
                 Start creating amazing competitions and engage with participants from around the world.
               </p>
-              <Link href="/competitions/create" className="btn-primary">
+              <Link 
+                href="/competitions/create" 
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl inline-block"
+              >
                 Create Your First Competition
               </Link>
             </div>
@@ -226,7 +182,10 @@ export default function DashboardPage() {
             // Organizer Competitions Grid
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {myComps.map((comp) => (
-                <div key={comp.id} className="card group hover:shadow-xl transition-all duration-300">
+                <div 
+                  key={comp.id} 
+                  className="bg-white rounded-2xl shadow-sm border border-gray-200 group hover:shadow-xl transition-all duration-300"
+                >
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200 line-clamp-2">
@@ -268,7 +227,7 @@ export default function DashboardPage() {
                     
                     <Link
                       href={`/competitions/${comp.id}`}
-                      className="block w-full text-center btn-primary"
+                      className="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
                       Manage Competition
                     </Link>
@@ -279,7 +238,7 @@ export default function DashboardPage() {
           )
         ) : myRegs.length === 0 ? (
           // Empty State for Participants
-          <div className="card p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
             <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -289,7 +248,10 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
               Discover exciting competitions and start your journey to showcase your skills.
             </p>
-            <Link href="/" className="btn-primary">
+            <Link 
+              href="/" 
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl inline-block"
+            >
               Browse Competitions
             </Link>
           </div>
@@ -299,7 +261,7 @@ export default function DashboardPage() {
             {myRegs.map((reg) => (
               <div
                 key={reg.id}
-                className="card group hover:shadow-lg transition-all duration-300"
+                className="bg-white rounded-2xl shadow-sm border border-gray-200 group hover:shadow-lg transition-all duration-300"
               >
                 <div className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">

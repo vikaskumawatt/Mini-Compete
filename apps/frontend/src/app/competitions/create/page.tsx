@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { competitions } from '@/lib/api';
 import { getAuth, isOrganizer } from '@/lib/auth';
-import Header from '@/components/Header';
+import Header from '@/components/Header'; // Header is already imported
 
 export default function CreateCompetitionPage() {
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function CreateCompetitionPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <Header />
         <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="card p-8 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
             <div className="text-gray-600">Loading...</div>
           </div>
         </main>
@@ -57,7 +57,7 @@ export default function CreateCompetitionPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <Header />
         <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="card p-8 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
             <div className="text-gray-600">Redirecting to login...</div>
           </div>
         </main>
@@ -105,10 +105,11 @@ export default function CreateCompetitionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header Component - Already properly placed here */}
       <Header />
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="card p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Create New Competition
@@ -143,7 +144,7 @@ export default function CreateCompetitionPage() {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="e.g., National Coding Challenge 2025"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 required
               />
             </div>
@@ -160,7 +161,7 @@ export default function CreateCompetitionPage() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="Describe the competition, rules, prizes, and what participants can expect..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
                 required
               />
             </div>
@@ -177,7 +178,7 @@ export default function CreateCompetitionPage() {
                 value={formData.tags}
                 onChange={handleChange}
                 placeholder="e.g., coding, hackathon, beginner"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               <p className="mt-1 text-sm text-gray-500">Help participants find your competition.</p>
             </div>
@@ -195,7 +196,7 @@ export default function CreateCompetitionPage() {
                 onChange={handleChange}
                 placeholder="e.g., 100"
                 min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 required
               />
             </div>
@@ -211,7 +212,7 @@ export default function CreateCompetitionPage() {
                 name="regDeadline"
                 value={formData.regDeadline}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 required
               />
             </div>
@@ -227,7 +228,7 @@ export default function CreateCompetitionPage() {
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               <p className="mt-1 text-sm text-gray-500">When the competition officially begins.</p>
             </div>
@@ -237,13 +238,13 @@ export default function CreateCompetitionPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 shadow-lg"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 {loading ? 'Creating...' : 'Create Competition'}
               </button>
               <Link
                 href="/competitions"
-                className="flex-1 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium text-center"
+                className="flex-1 px-6 py-3 border border-gray-300 text-center rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium"
               >
                 Cancel
               </Link>

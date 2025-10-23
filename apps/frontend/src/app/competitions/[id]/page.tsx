@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { competitions } from '@/lib/api';
 import { getAuth, isParticipant } from '@/lib/auth';
+import Header from '@/components/Header';
 import type { Competition } from '@/types';
 
 export default function CompetitionDetailPage() {
@@ -60,21 +61,29 @@ export default function CompetitionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+            <div className="text-gray-600">Loading competition details...</div>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (!comp) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Competition not found</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700">
-            Back to home
-          </Link>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+            <p className="text-gray-600 mb-4">Competition not found</p>
+            <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+              Back to home
+            </Link>
+          </div>
+        </main>
       </div>
     );
   }
@@ -84,17 +93,12 @@ export default function CompetitionDetailPage() {
   const canRegister = user && isParticipant() && !isDeadlinePassed && !isFull;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/" className="text-2xl font-bold text-blue-600">
-            Mini Compete
-          </Link>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header Component */}
+      <Header />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{comp.title}</h1>
             <p className="text-gray-600">
@@ -104,102 +108,112 @@ export default function CompetitionDetailPage() {
 
           <div className="flex flex-wrap gap-2 mb-6">
             {comp.tags.map((tag) => (
-              <span key={tag} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+              <span 
+                key={tag} 
+                className="px-3 py-1 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 text-sm rounded-full border border-blue-200 font-medium"
+              >
                 {tag}
               </span>
             ))}
           </div>
 
           <div className="prose max-w-none mb-8">
-            <h2 className="text-xl font-semibold mb-3">Description</h2>
-            <p className="text-gray-700 whitespace-pre-line">{comp.description}</p>
+            <h2 className="text-xl font-semibold mb-3 text-gray-900">Description</h2>
+            <p className="text-gray-700 whitespace-pre-line leading-relaxed">{comp.description}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Competition Details</h3>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+              <h3 className="font-semibold text-gray-900 mb-4 text-lg">Competition Details</h3>
+              <dl className="space-y-3">
+                <div className="flex justify-between items-center">
                   <dt className="text-gray-600">Capacity:</dt>
-                  <dd className="font-medium">
+                  <dd className="font-semibold text-gray-900">
                     {comp.capacity - comp.seatsLeft}/{comp.capacity} registered
                   </dd>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <dt className="text-gray-600">Seats Left:</dt>
-                  <dd className="font-medium">{comp.seatsLeft}</dd>
+                  <dd className="font-semibold text-gray-900">{comp.seatsLeft}</dd>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <dt className="text-gray-600">Registration Deadline:</dt>
-                  <dd className="font-medium">{new Date(comp.regDeadline).toLocaleString()}</dd>
+                  <dd className="font-semibold text-gray-900">
+                    {new Date(comp.regDeadline).toLocaleString()}
+                  </dd>
                 </div>
                 {comp.startDate && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <dt className="text-gray-600">Start Date:</dt>
-                    <dd className="font-medium">{new Date(comp.startDate).toLocaleString()}</dd>
+                    <dd className="font-semibold text-gray-900">
+                      {new Date(comp.startDate).toLocaleString()}
+                    </dd>
                   </div>
                 )}
               </dl>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Organizer</h3>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+              <h3 className="font-semibold text-gray-900 mb-4 text-lg">Organizer</h3>
+              <dl className="space-y-3">
+                <div className="flex justify-between items-center">
                   <dt className="text-gray-600">Name:</dt>
-                  <dd className="font-medium">{comp.organizer.name}</dd>
+                  <dd className="font-semibold text-gray-900">{comp.organizer.name}</dd>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <dt className="text-gray-600">Email:</dt>
-                  <dd className="font-medium">{comp.organizer.email}</dd>
+                  <dd className="font-semibold text-gray-900">{comp.organizer.email}</dd>
                 </div>
               </dl>
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
               {success}
             </div>
           )}
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             {canRegister ? (
               <button
                 onClick={handleRegister}
                 disabled={registering}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 {registering ? 'Registering...' : 'Register Now'}
               </button>
             ) : !user ? (
               <Link
                 href="/auth/login"
-                className="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 text-center"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 text-center transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Login to Register
               </Link>
             ) : isDeadlinePassed ? (
-              <div className="flex-1 px-6 py-3 bg-gray-300 text-gray-600 font-medium rounded-lg text-center cursor-not-allowed">
+              <div className="flex-1 px-6 py-3 bg-gray-300 text-gray-600 font-semibold rounded-xl text-center cursor-not-allowed">
                 Registration Closed
               </div>
             ) : isFull ? (
-              <div className="flex-1 px-6 py-3 bg-gray-300 text-gray-600 font-medium rounded-lg text-center cursor-not-allowed">
+              <div className="flex-1 px-6 py-3 bg-gray-300 text-gray-600 font-semibold rounded-xl text-center cursor-not-allowed">
                 Competition Full
               </div>
             ) : (
-              <div className="flex-1 px-6 py-3 bg-gray-300 text-gray-600 font-medium rounded-lg text-center cursor-not-allowed">
+              <div className="flex-1 px-6 py-3 bg-gray-300 text-gray-600 font-semibold rounded-xl text-center cursor-not-allowed">
                 Organizers Cannot Register
               </div>
             )}
-            <Link href="/" className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
-              Back
+            <Link 
+              href="/competitions" 
+              className="px-6 py-3 border border-gray-300 text-center rounded-xl hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium"
+            >
+              Back to Competitions
             </Link>
           </div>
         </div>

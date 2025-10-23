@@ -86,6 +86,7 @@ export default function CompetitionsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header Component - Already properly placed here */}
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -104,7 +105,7 @@ export default function CompetitionsPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="card p-8 mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
           {/* Search Bar */}
           <div className="mb-8">
             <div className="relative max-w-2xl mx-auto">
@@ -211,7 +212,7 @@ export default function CompetitionsPage() {
               >
                 <div className="h-6 bg-gray-200 rounded mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
                 <div className="flex gap-2 mb-4">
                   <div className="h-6 bg-gray-200 rounded w-16"></div>
                   <div className="h-6 bg-gray-200 rounded w-20"></div>
@@ -226,7 +227,7 @@ export default function CompetitionsPage() {
           </div>
         ) : comps.length === 0 ? (
           // Empty State
-          <div className="card p-16 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-16 text-center">
             <div className="w-32 h-32 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-8">
               <svg className="w-16 h-16 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -244,7 +245,7 @@ export default function CompetitionsPage() {
             {hasActiveFilters ? (
               <button
                 onClick={clearFilters}
-                className="btn-primary"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg font-medium"
               >
                 Clear All Filters
               </button>
@@ -252,7 +253,7 @@ export default function CompetitionsPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={() => router.push('/competitions/create')}
-                  className="btn-primary"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg font-medium"
                 >
                   Create Competition
                 </button>
